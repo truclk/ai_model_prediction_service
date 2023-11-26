@@ -1,7 +1,9 @@
 from rest_framework import viewsets
 
-from backend_api.models import TrainningRun
-from backend_api.serializers import TrainningRunSerializer
+from backend_api.models import TrainningRun, DatasetUpload
+from backend_api.serializers import TrainningRunSerializer, DatasetUploadSerializer
+from django.shortcuts import render
+from .forms import FileUploadForm
 
 
 # Create your views here.
@@ -36,3 +38,20 @@ class TrainningRunViewSet(viewsets.ModelViewSet):
     def destroy(self, request, *args, **kwargs):
         # This would delete the run
         pass
+
+
+class DatasetUploadViewSet(viewsets.ModelViewSet):
+    queryset = DatasetUpload.objects.all()
+    serializer_class = DatasetUploadSerializer
+
+
+def upload_file(request):
+    if request.method == "POST":
+        form = FileUploadForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            # Redirect or show a success message after saving
+            return render(request, "success.html")
+    else:
+        form = FileUploadForm()
+    return render(request, "upload.html", {"form": form})
