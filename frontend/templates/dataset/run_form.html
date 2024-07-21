@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h1>Create a Dataset Run for Preprocessed Dataset {{ dataset_preprocessed_id }}</h1>
+    <form id="datasetRunForm">
+        <div class="form-group">
+            <label for="description">Description</label>
+            <textarea class="form-control" id="description" required></textarea>
+        </div>
+        <div class="form-group">
+            <label for="version">Version</label>
+            <input type="text" class="form-control" id="version" required>
+        </div>
+        <div class="form-group">
+            <label for="model">Model</label>
+            <select class="form-control" id="model" required>
+                <option value="naive_bayes">Naive Bayes</option>
+                <option value="knn">K-Nearest Neighbors</option>
+                <option value="lgbm">LightGBM</option>
+                <option value="logistic_regression">Logistic Regression</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="featureSelectionMethod">Feature Selection Method</label>
+            <select class="form-control" id="featureSelectionMethod" required>
+                <option value="rfe">Recursive Feature Elimination</option>
+                <option value="chi2">Chi-Square</option>
+                <option value="manual">Manual</option>
+            </select>
+        </div>
+        <div class="form-group" id="nFeaturesToSelectGroup">
+            <label for="nFeaturesToSelect">Number of Features to Select</label>
+            <input type="number" class="form-control" id="nFeaturesToSelect" min="1">
+        </div>
+        <div class="form-group" id="featuresGroup" style="display:none;">
+            <label for="features">Features (JSON format)</label>
+            <textarea class="form-control" id="features"></textarea>
+        </div>
+        <div class="form-group">
+            <label for="parameters">Parameters (JSON format)</label>
+            <textarea class="form-control" id="parameters" required></textarea>
+        </div>
+        <button type="button" class="btn btn-primary" onclick="submitDatasetRunForm()">Submit</button>
+    </form>
+</div>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const featureSelectionMethodSelect = document.getElementById('featureSelectionMethod');
+    featureSelectionMethodSelect.addEventListener('change', toggleFeatureSelectionMethodFields);
+});
+
+function toggleFeatureSelectionMethodFields() {
+    const method = document.getElementById('featureSelectionMethod').value;
+    if (method === 'manual') {
+        document.getElementById('nFeaturesToSelectGroup').style.display = 'none';
+        document.getElementById('featuresGroup').style.display = 'block';
+    } else {
+        document.getElementById('nFeaturesToSelectGroup').style.display = 'block';
+        document.getElementById('featuresGroup').style.display = 'none';
+    }
+}
+
+function submitDatasetRunForm() {
+    const datasetPreprocessedId = {{ dataset_preprocessed_id }};
+    const apiUrl = `/api/dataset_run/`;
+
+    const data = {
+        dataset_preprocessed: datasetPreprocessedId,
+        description: document.getElementById('description').value,
+        version: document.getElementById('version').value,
+        model: document.getElementById('model').value,
+        feature_selection_method: document.getElementById('featureSelectionMethod').value,
+        n_features_to_select: document.getElementById('nFeaturesToSelect').value,
+        features: document.getElementById('features').value,
+        parameters: document.getElementById('parameters').value,
+        predict_column: '' // Add predict_column if needed
+    };
+
+    fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken'),
+        },
+        body: JSON.stringify(data),
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.json();
+        }
+        throw new Error('Network response was not ok.');
+    })
+    .then(data => {
+        console.log('Dataset run created:', data);
+        alert('Dataset run created successfully!');
+        window.location.href = '../';  // Redirect to another page if necessary
+    })
+    .catch(error => console.error('Error creating dataset run:', error));
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
+{% endblock %}

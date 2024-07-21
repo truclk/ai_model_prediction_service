@@ -1,0 +1,11 @@
+pandas
+django-bootstrap-v5
+django_extensions
+notebook
+celery
+nbclassic
+djangorestframework
+django-model-utils
+redis
+scikit-learn
+django-filter

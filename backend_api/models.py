@@ -10,6 +10,19 @@ class Client(TimeStampedModel):
     name = models.CharField(max_length=255)
 
 
+class ClientUser(TimeStampedModel):
+    # This model is the relationship between user and client
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    client = models.ForeignKey("Client", on_delete=models.CASCADE)
+    role = models.CharField(
+        max_length=255,
+        choices=[
+            ("ADMIN", "ADMIN"),
+            ("USER", "USER"),
+        ],
+    )
+
+
 class TrainningRun(TimeStampedModel):
     # This set would contains the training of client
     # Each set has a unique id
@@ -38,10 +51,19 @@ class TrainningRun(TimeStampedModel):
     result = models.JSONField()
 
 
+def upload_tenant_directory_path(instance, filename):
+    # Assuming instance has a tenant attribute
+    tenant_id = instance.client_id
+    timestamp = instance.created.strftime("%Y%m%d%H%M%S")
+    filename = f"{timestamp}_{filename}"
+    return f"./dataset_file/client_{tenant_id}/upload/{filename}"
+
+
 class DatasetUpload(TimeStampedModel):
     # This set would contains the training of client
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
-    dataset_file = models.FileField(upload_to="./dataset_file")
+    client = models.ForeignKey("Client", on_delete=models.CASCADE, null=True)
+    dataset_file = models.FileField(upload_to=upload_tenant_directory_path)
     name = models.CharField(max_length=255, default="")
     features = models.JSONField(null=True)
     predict_column = models.CharField(max_length=255, default="")
@@ -58,33 +80,12 @@ class DatasetUpload(TimeStampedModel):
         default="PENDING",
     )
 
+
 class DatasetMetadata(TimeStampedModel):
     # This model would describe the dataset metadata including list of features, type of features
     # Number of rows, number of columns, etc.
-    dataset_upload = models.ForeignKey("DatasetUpload", on_delete=models.CASCADE)
+    dataset_upload = models.OneToOneField("DatasetUpload", on_delete=models.CASCADE, related_name="metadata")
     metadata = models.JSONField(null=True)
     row_count = models.IntegerField(null=True)
     column_count = models.IntegerField(null=True)
     predict_column = models.CharField(max_length=255, default="")
-
-
-class DatasetRun(TimeStampedModel):
-    dataset_upload = models.ForeignKey("DatasetUpload", on_delete=models.CASCADE)
-    features = models.JSONField()
-    target = models.JSONField()
-    status = models.CharField(
-        max_length=255,
-        choices=[
-            ("PENDING", "PENDING"),
-            ("RUNNING", "RUNNING"),
-            ("SUCCESS", "SUCCESS"),
-            ("FAILED", "FAILED"),
-        ],
-        default="PENDING",
-    )
-
-
-class DatasetResult(TimeStampedModel):
-    dataset_upload = models.ForeignKey("DatasetUpload", on_delete=models.CASCADE)
-    notebook_name = models.CharField(max_length=255, default="")
-    results = models.JSONField()

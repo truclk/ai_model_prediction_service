@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h1>Preprocess Configuration for {{ dataset.name }}</h1>
+    <form id="preprocessConfigForm">
+        <div id="columnsConfig"></div>
+        <button type="button" id="submitPreprocessConfig" class="btn btn-primary">Submit</button>
+    </form>
+</div>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    fetchMetadata();
+    document.getElementById('submitPreprocessConfig').addEventListener('click', function(event) {
+        event.preventDefault();
+        submitPreprocessConfig();
+    });
+});
+
+function fetchMetadata() {
+    const datasetId = {{ dataset.id }};
+    const metadataUrl = `/backend/dataset/${datasetId}/metadata/`;
+
+    fetch(metadataUrl)
+        .then(response => response.json())
+        .then(data => generatePreprocessConfigForm(data))
+        .catch(error => console.error('Error fetching metadata:', error));
+}
+
+function generatePreprocessConfigForm(metadata) {
+    const columns = metadata.columns;
+    const dataTypes = metadata.data_types;
+    const missingValues = metadata.missing_values;
+    const uniqueValues = metadata.unique_values;
+    const statistics = metadata.statistics;
+
+    const columnsConfig = document.getElementById('columnsConfig');
+    columnsConfig.innerHTML = '';  // Clear previous form content
+
+    columns.forEach(column => {
+        const dataType = dataTypes[column];
+        const columnDiv = document.createElement('div');
+        columnDiv.className = 'form-group';
+
+        let stats = '';
+        if (statistics[column]) {
+            stats = `<p>Statistics: ${JSON.stringify(statistics[column])}</p>`;
+        }
+
+        columnDiv.innerHTML = `
+            <h5>${column} (${dataType})</h5>
+            <p>Missing Values: ${missingValues[column]}</p>
+            <p>Unique Values: ${uniqueValues[column]}</p>
+            ${stats}
+        `;
+
+        columnDiv.innerHTML += `
+            <label><input type="checkbox" id="impute_${column}"> Missing Value Imputation</label><br>
+            <div id="imputation_div_${column}" style="display:none;">
+                <label>Strategy:</label>
+                <select class="form-control" id="imputation_${column}">
+                    ${dataType === 'int64' || dataType === 'float64' ? '<option value="mean">Mean</option><option value="median">Median</option>' : ''}
+                    <option value="mode">Mode</option>
+                    <option value="value">Specific Value</option>
+                </select>
+                <input type="text" class="form-control" id="imputation_value_${column}" placeholder="Enter value" style="display:none;">
+            </div>
+        `;
+
+        if (dataType === 'int64' || dataType === 'float64') {
+            columnDiv.innerHTML += `
+                <label><input type="checkbox" id="standardization_${column}"> Standardization</label><br>
+                <label><input type="checkbox" id="normalization_${column}"> Normalization</label><br>
+            `;
+        } else if (dataType === 'object') {
+            columnDiv.innerHTML += `
+                <label><input type="checkbox" id="encoding_${column}"> Encoding</label><br>
+                <label><input type="checkbox" id="one_hot_encoding_${column}"> One Hot Encoding</label>
+            `;
+        }
+
+        columnsConfig.appendChild(columnDiv);
+
+        document.getElementById(`impute_${column}`).addEventListener('change', function() {
+            const imputationDiv = document.getElementById(`imputation_div_${column}`);
+            if (this.checked) {
+                imputationDiv.style.display = 'block';
+            } else {
+                imputationDiv.style.display = 'none';
+            }
+        });
+
+        document.getElementById(`imputation_${column}`).addEventListener('change', function() {
+            const imputationValueInput = document.getElementById(`imputation_value_${column}`);
+            if (this.value === 'value') {
+                imputationValueInput.style.display = 'block';
+            } else {
+                imputationValueInput.style.display = 'none';
+            }
+        });
+    });
+}
+
+function submitPreprocessConfig() {
+    const columnsConfig = {};
+    const columnDivs = document.getElementById('columnsConfig').children;
+
+    for (const columnDiv of columnDivs) {
+        const columnName = columnDiv.querySelector('h5').innerText.split(' ')[0];
+        const imputeChecked = columnDiv.querySelector(`#impute_${columnName}`)?.checked;
+        const imputationStrategy = columnDiv.querySelector(`#imputation_${columnName}`)?.value;
+        const imputationValue = columnDiv.querySelector(`#imputation_value_${columnName}`)?.value;
+        const standardization = columnDiv.querySelector(`#standardization_${columnName}`)?.checked;
+        const normalization = columnDiv.querySelector(`#normalization_${columnName}`)?.checked;
+        const encoding = columnDiv.querySelector(`#encoding_${columnName}`)?.checked;
+        const oneHotEncoding = columnDiv.querySelector(`#one_hot_encoding_${columnName}`)?.checked;
+
+        columnsConfig[columnName] = {
+            operations: {}
+        };
+
+        if (imputeChecked) {
+            columnsConfig[columnName].operations.missing_value_imputation = imputationStrategy === 'value' ? { strategy: imputationValue } : { strategy: imputationStrategy };
+        }
+        if (standardization) {
+            columnsConfig[columnName].operations.standardization = {};
+        }
+        if (normalization) {
+            columnsConfig[columnName].operations.normalization = {};
+        }
+        if (encoding) {
+            columnsConfig[columnName].operations.encoding = {};
+        }
+        if (oneHotEncoding) {
+            columnsConfig[columnName].operations.one_hot_encoding = {};
+        }
+    }
+
+    const datasetId = {{ dataset.id }};
+    const preprocessUrl = `/backend/dataset/${datasetId}/trigger_preprocess/`;
+
+    fetch(preprocessUrl, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken,
+        },
+        body: JSON.stringify({ columns: columnsConfig }),
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.json();
+        }
+        throw new Error('Network response was not ok.');
+    })
+    .then(data => {
+        console.log('Preprocessing started:', data);
+        alert('Preprocessing started successfully!');
+    })
+    .catch(error => console.error('Error triggering preprocess:', error));
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+const csrftoken = getCookie('csrftoken');
+</script>
+{% endblock %}
+

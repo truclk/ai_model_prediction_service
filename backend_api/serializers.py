@@ -1,6 +1,8 @@
 from rest_framework import serializers
 
-from backend_api.models import TrainningRun, DatasetUpload, DatasetMetadata
+from backend_api.models import DatasetMetadata
+from backend_api.models import DatasetUpload
+from backend_api.models import TrainningRun
 
 
 class TrainningRunSerializer(serializers.ModelSerializer):
@@ -13,17 +15,26 @@ class DatasetMetadataSerializer(serializers.ModelSerializer):
     class Meta:
         model = DatasetMetadata
         fields = "__all__"
+        read_only_fields = ["id", "user", "client"]
 
 
 class DatasetUploadSerializer(serializers.ModelSerializer):
-    datasetmetadata_set = DatasetMetadataSerializer(many=True, read_only=True)
-
+    metadata = DatasetMetadataSerializer(read_only=True)
 
     class Meta:
         model = DatasetUpload
         fields = "__all__"
+        read_only_fields = ["id", "user", "client", "dataset_file"]
 
     # Get nested model of DatasetMetadata
     # def to_representation(self, instance):
     #     self.fields['dataset_metadata'] = DatasetMetadataSerializer(read_only=True)
     #     return super(DatasetUploadSerializer, self).to_representation(instance)
+
+
+class PreprocessDataConfigSerializer(serializers.Serializer):
+    columns = serializers.JSONField()
+
+    def validate_columns(self, value):
+        # Add any custom validation logic for the columns field if necessary
+        return value

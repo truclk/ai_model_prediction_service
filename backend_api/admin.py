@@ -1,21 +1,21 @@
+from data_processing.models import DatasetRunResult
 from django.contrib import admin
 
 from backend_api import models
 from backend_api.tasks import process_dataset_upload
 
+# class DatasetResultAdmin(admin.ModelAdmin):
+#     list_display = (
+#         "get_dataset_upload",
+#         "notebook_name",
+#         "results",
+#     )
 
-class DatasetResultAdmin(admin.ModelAdmin):
-    list_display = (
-        "get_dataset_upload",
-        "notebook_name",
-        "results",
-    )
+#     def get_dataset_upload(self, obj):
+#         return obj.dataset_upload.name
 
-    def get_dataset_upload(self, obj):
-        return obj.dataset_upload.name
-
-    def get_dataset_upload_created(self, obj):
-        return obj.dataset_upload.created
+#     def get_dataset_upload_created(self, obj):
+#         return obj.dataset_upload.created
 
 
 class DatasetUploadAdmin(admin.ModelAdmin):
@@ -28,11 +28,14 @@ class DatasetUploadAdmin(admin.ModelAdmin):
 
     def detect_features(self, request, queryset):
         for dataset_upload in queryset:
-            process_detect_features.delay(dataset_upload.id)
+            # process_detect_features.delay(dataset_upload.id)
+            pass
 
 
+admin.site.register(models.Client)
+admin.site.register(models.ClientUser)
 admin.site.register(models.DatasetUpload, DatasetUploadAdmin)
-admin.site.register(models.DatasetResult, DatasetResultAdmin)
+# admin.site.register(DatasetRunResult, DatasetResultAdmin)
 
 
 # Register your models here.

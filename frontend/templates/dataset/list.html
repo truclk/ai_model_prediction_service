@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container mt-4">
+    <h2 class="mb-4">Datasets</h2>
+    <a href="{% url 'upload_file' %}">Upload dataset file</a>
+    <div id="datasetList" class="row"></div>
+    <nav aria-label="Page navigation">
+        <ul class="pagination">
+            <li class="page-item"><a class="page-link" href="#" id="previousPage">Previous</a></li>
+            <li class="page-item"><a class="page-link" href="#" id="nextPage">Next</a></li>
+        </ul>
+    </nav>
+</div>
+
+<script>
+
+const datasetListDiv = document.getElementById('datasetList');
+const previousPage = document.getElementById('previousPage');
+const nextPage = document.getElementById('nextPage');
+let currentApiUrl = '/backend/dataset';
+
+function fetchDatasets(apiUrl) {
+    fetch(apiUrl)
+        .then(response => response.json())
+        .then(data => {
+            renderDatasets(data.results);
+            setupPagination(data.previous, data.next);
+        })
+        .catch(error => console.error('Error:', error));
+}
+
+function renderDatasets(datasets) {
+    datasetListDiv.innerHTML = '';
+    datasets.forEach(dataset => {
+        const datasetElement = `
+            <div class="col-md-4 mb-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">${dataset.name}</h5>
+                        <p class="card-text">
+                            Created: ${dataset.created}<br>
+                            Status: ${dataset.status}<br>
+                            Details: <a href="/fe/dataset/${dataset.id}">View</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        `;
+        datasetListDiv.innerHTML += datasetElement;
+    });
+}
+
+function setupPagination(prevUrl, nextUrl) {
+    previousPage.parentNode.classList.toggle('disabled', !prevUrl);
+    nextPage.parentNode.classList.toggle('disabled', !nextUrl);
+    
+    previousPage.onclick = () => prevUrl && fetchDatasets(prevUrl);
+    nextPage.onclick = () => nextUrl && fetchDatasets(nextUrl);
+}
+
+fetchDatasets(currentApiUrl);
+</script>
+
+{% endblock %}

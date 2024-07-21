@@ -1058,5 +1058,5 @@ c = get_config()  # noqa
 # c.ServerApp.websocket_url = ''
 
 c.IdentityProvider.token = "7eeb99a4db374ecead433d9563fbd409"
-c.ServerApp.root_dir = "../server_runtime"
+c.ServerApp.root_dir = "./server_runtime"
 c.ServerApp.token = "7eeb99a4db374ecead433d9563fbd409"

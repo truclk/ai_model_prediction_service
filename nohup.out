@@ -1,0 +1,33 @@
+[W 2024-01-21 13:20:30.129 ServerApp] ServerApp.token config is deprecated in 2.0. Use IdentityProvider.token.
+[I 2024-01-21 13:20:30.134 ServerApp] Package notebook took 0.0000s to import
+[I 2024-01-21 13:20:30.143 ServerApp] Package jupyter_lsp took 0.0089s to import
+[W 2024-01-21 13:20:30.143 ServerApp] A `_jupyter_server_extension_points` function was not found in jupyter_lsp. Instead, a `_jupyter_server_extension_paths` function was found and will be used for now. This function name will be deprecated in future releases of Jupyter Server.
+[I 2024-01-21 13:20:30.147 ServerApp] Package jupyter_server_terminals took 0.0037s to import
+[I 2024-01-21 13:20:30.148 ServerApp] Package jupyterlab took 0.0000s to import
+[I 2024-01-21 13:20:30.549 ServerApp] Package nbclassic took 0.0020s to import
+[W 2024-01-21 13:20:30.550 ServerApp] A `_jupyter_server_extension_points` function was not found in nbclassic. Instead, a `_jupyter_server_extension_paths` function was found and will be used for now. This function name will be deprecated in future releases of Jupyter Server.
+[I 2024-01-21 13:20:30.551 ServerApp] Package notebook_shim took 0.0000s to import
+[W 2024-01-21 13:20:30.551 ServerApp] A `_jupyter_server_extension_points` function was not found in notebook_shim. Instead, a `_jupyter_server_extension_paths` function was found and will be used for now. This function name will be deprecated in future releases of Jupyter Server.
+[I 2024-01-21 13:20:30.551 ServerApp] jupyter_lsp | extension was successfully linked.
+[I 2024-01-21 13:20:30.555 ServerApp] jupyter_server_terminals | extension was successfully linked.
+[W 2024-01-21 13:20:30.556 LabApp] 'token' has moved from NotebookApp to ServerApp. This config will be passed to ServerApp. Be sure to update your config before our next release.
+[W 2024-01-21 13:20:30.560 ServerApp] Ignoring deprecated ServerApp.token config. Using IdentityProvider.token.
+[I 2024-01-21 13:20:30.560 ServerApp] jupyterlab | extension was successfully linked.
+[I 2024-01-21 13:20:30.563 ServerApp] nbclassic | extension was successfully linked.
+[I 2024-01-21 13:20:30.568 ServerApp] notebook | extension was successfully linked.
+[I 2024-01-21 13:20:30.775 ServerApp] notebook_shim | extension was successfully linked.
+[I 2024-01-21 13:20:30.791 ServerApp] notebook_shim | extension was successfully loaded.
+[I 2024-01-21 13:20:30.793 ServerApp] jupyter_lsp | extension was successfully loaded.
+[I 2024-01-21 13:20:30.794 ServerApp] jupyter_server_terminals | extension was successfully loaded.
+[I 2024-01-21 13:20:30.795 LabApp] JupyterLab extension loaded from /home/kientruc/.local/lib/python3.10/site-packages/jupyterlab
+[I 2024-01-21 13:20:30.795 LabApp] JupyterLab application directory is /home/kientruc/.local/share/jupyter/lab
+[I 2024-01-21 13:20:30.795 LabApp] Extension Manager is 'pypi'.
+[I 2024-01-21 13:20:30.798 ServerApp] jupyterlab | extension was successfully loaded.
+[I 2024-01-21 13:20:30.801 ServerApp] nbclassic | extension was successfully loaded.
+[I 2024-01-21 13:20:30.803 ServerApp] notebook | extension was successfully loaded.
+[I 2024-01-21 13:20:30.804 ServerApp] Serving notebooks from local directory: /opt/project/master/thesis/ai_model_prediction_service/server_runtime
+[I 2024-01-21 13:20:30.804 ServerApp] Jupyter Server 2.5.0 is running at:
+[I 2024-01-21 13:20:30.804 ServerApp] http://localhost:8888/tree?token=...
+[I 2024-01-21 13:20:30.805 ServerApp]     http://127.0.0.1:8888/tree?token=...
+[I 2024-01-21 13:20:30.805 ServerApp] Use Control-C to stop this server and shut down all kernels (twice to skip confirmation).
+[I 2024-01-21 13:20:31.210 ServerApp] Skipped non-installed server(s): bash-language-server, dockerfile-language-server-nodejs, javascript-typescript-langserver, jedi-language-server, julia-language-server, pyright, python-language-server, python-lsp-server, r-languageserver, sql-language-server, texlab, typescript-language-server, unified-language-server, vscode-css-languageserver-bin, vscode-html-languageserver-bin, vscode-json-languageserver-bin, yaml-language-server

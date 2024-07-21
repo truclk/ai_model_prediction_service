@@ -1,7 +1,7 @@
 import pandas as pd
+from backend_api.models import DatasetUpload
 from sklearn.feature_selection import SelectKBest
 from sklearn.feature_selection import chi2
-from backend_api.models import DatasetUpload
 
 # Load data
 
@@ -18,10 +18,9 @@ def feature_selection_filter_chisquare(dataset_upload: DatasetUpload, n_features
     scores = pd.DataFrame(fit.scores_)
     columns = pd.DataFrame(X.columns)
     feature_scores = pd.concat([columns, scores], axis=1)
-    feature_scores.columns = ['Feature', 'Score']
-    print(feature_scores.nlargest(n_features_to_select, 'Score'))
+    feature_scores.columns = ["Feature", "Score"]
+    print(feature_scores.nlargest(n_features_to_select, "Score"))
     # Get the list of features
     # Get the json in format feature as key and nested dict of score and rank
-    feature_scores_dict = feature_scores.nlargest(n_features_to_select, 'Score').to_dict('records')
+    feature_scores_dict = feature_scores.nlargest(n_features_to_select, "Score").to_dict("records")
     return feature_scores_dict
-    

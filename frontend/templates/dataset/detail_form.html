@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% load rest_framework %}
+{% block content %}
+
+<h1>Dataset - {{ dataset.name }}</h1>
+
+<form action="{% url 'dataset_form' pk=dataset.pk %}" method="POST">
+    {% csrf_token %}
+    {% render_form serializer %}
+    <input type="submit" value="Save">
+</form>
+{% endblock %}

@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h1>Preprocessed Datasets for Dataset Upload {{ dataset.name }}</h1>
+    <div id="preprocessedList"></div>
+    <a href="../" class="btn btn-secondary">Back to List</a>
+</div>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    fetchPreprocessedData();
+});
+
+function fetchPreprocessedData() {
+    const datasetUploadId = {{ dataset.id }};
+    const apiUrl = `/backend/preprocess/?client_id={{ client_id }}&dataset_upload_id=${datasetUploadId}`;
+
+    fetch(apiUrl)
+        .then(response => response.json())
+        .then(data => populatePreprocessedList(data.results))
+        .catch(error => console.error('Error fetching preprocessed data:', error));
+}
+
+function populatePreprocessedList(preprocessedList) {
+    const listContainer = document.getElementById('preprocessedList');
+    listContainer.innerHTML = '';
+
+    preprocessedList.forEach(item => {
+        const itemDiv = document.createElement('div');
+        itemDiv.className = 'card mb-3';
+        itemDiv.innerHTML = `
+            <div class="card-header">
+                Preprocessed Dataset ${item.id}
+            </div>
+            <div class="card-body">
+                <p class="card-text">Created: ${item.created}</p>
+                <p class="card-text">Modified: ${item.modified}</p>
+                <p class="card-text">Dataset File: <a href="${item.dataset_file}">Download</a></p>
+                <p class="card-text">Name: ${item.name}</p>
+                <p class="card-text">Version: ${item.version}</p>
+                <p class="card-text">Description: ${item.description}</p>
+                <p class="card-text">Predict Column: ${item.predict_column}</p>
+                <a href="{% url 'dataset_run_form' item.id %}" class="btn btn-primary">Create Dataset Run</a>
+            </div>
+        `;
+        listContainer.appendChild(itemDiv);
+    });
+}
+</script>
+{% endblock %}

@@ -1,17 +1,18 @@
 # urls.py
+from data_processing.views import DatasetPreprocessedViewSet
+from django.urls import include
 from django.urls import path
-from . import views
-from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
+from . import views
 
 # Create a router and register our viewsets with it.
 router = DefaultRouter()
-router.register(r'dataset', views.DatasetUploadViewSet, basename="dataset_upoad")
+router.register(r"dataset", views.DatasetUploadViewSet, basename="dataset_upload")
+router.register(r"preprocess", DatasetPreprocessedViewSet, basename="dataset_preprocessed")
 
 
 urlpatterns = [
-    path('', include(router.urls)),
-    path('upload/', views.upload_file, name='upload_file'),
+    path("", include(router.urls)),
     # Add other paths as necessary
 ]

@@ -1,9 +1,9 @@
 # forms.py
+from backend_api.models import DatasetUpload
 from django import forms
-from .models import DatasetUpload
 
 
 class FileUploadForm(forms.ModelForm):
     class Meta:
         model = DatasetUpload
-        fields = ['name', 'dataset_file', 'predict_column']
+        fields = ["name", "dataset_file", "predict_column"]
