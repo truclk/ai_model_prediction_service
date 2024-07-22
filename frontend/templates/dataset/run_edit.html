@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h1>Edit Dataset Run Parameters and Features</h1>
+    <form id="datasetRunForm">
+        <div class="card mb-3">
+            <div class="card-header">
+                Edit Run Information
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">ID: <span id="runId"></span></h5>
+                <p class="card-text">Dataset Name: <span id="datasetName"></span></p>
+                <p class="card-text">Description: <span id="runDescription"></span></p>
+                <p class="card-text">Version: <span id="runVersion"></span></p>
+                <p class="card-text">Model: <span id="runModel"></span></p>
+                <div class="form-group">
+                    <label for="featureSelectionMethod">Feature Selection Method</label>
+                    <select class="form-control" id="featureSelectionMethod" name="featureSelectionMethod">
+                        <option value="rfe">Recursive Feature Elimination</option>
+                        <option value="chi2">Chi-Square</option>
+                        <option value="manual">Manual</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="nFeaturesToSelect">Number of Features to Select</label>
+                    <input type="number" class="form-control" id="nFeaturesToSelect" name="nFeaturesToSelect">
+                </div>
+                <div class="form-group">
+                    <label for="features">Features (JSON format)</label>
+                    <textarea class="form-control" id="features" name="features" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="parameters">Parameters (JSON format)</label>
+                    <textarea class="form-control" id="parameters" name="parameters" required></textarea>
+                </div>
+                <button type="button" class="btn btn-primary" onclick="submitDatasetRunForm()">Save Changes</button>
+                <a href="{% url 'dataset_run_view' dataset_run_id %}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </div>
+    </form>
+</div>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    fetchRunDetails();
+});
+
+function fetchRunDetails() {
+    const runId = {{ dataset_run_id }};
+    const apiUrl = `/backend/dataset_run/${runId}/`;
+
+    fetch(apiUrl)
+        .then(response => response.json())
+        .then(data => populateRunDetails(data))
+        .catch(error => console.error('Error fetching run details:', error));
+}
+
+function populateRunDetails(run) {
+    document.getElementById('runId').textContent = run.id;
+    document.getElementById('runDescription').textContent = run.description;
+    document.getElementById('datasetName').textContent = run.dataset_name;
+    document.getElementById('runVersion').textContent = run.version;
+    document.getElementById('runModel').textContent = run.model;
+    document.getElementById('featureSelectionMethod').value = run.feature_selection_method;
+    document.getElementById('nFeaturesToSelect').value = run.n_features_to_select;
+    document.getElementById('features').value = JSON.stringify(run.features, null, 2);
+    document.getElementById('parameters').value = JSON.stringify(run.parameters, null, 2);
+}
+
+function submitDatasetRunForm() {
+    const runId = {{ dataset_run_id }};
+    const apiUrl = `/backend/dataset_run/${runId}/`;
+
+    const data = {
+        feature_selection_method: document.getElementById('featureSelectionMethod').value,
+        n_features_to_select: document.getElementById('nFeaturesToSelect').value,
+        features: JSON.parse(document.getElementById('features').value),
+        parameters: JSON.parse(document.getElementById('parameters').value)
+    };
+
+    fetch(apiUrl, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken'),
+        },
+        body: JSON.stringify(data),
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.json();
+        }
+        throw new Error('Network response was not ok.');
+    })
+    .then(data => {
+        console.log('Dataset run updated:', data);
+        alert('Dataset run updated successfully!');
+        window.location.href = `{% url 'dataset_run_view' dataset_run_id %}`;  // Redirect to the view page
+    })
+    .catch(error => console.error('Error updating dataset run:', error));
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
+{% endblock %}
+

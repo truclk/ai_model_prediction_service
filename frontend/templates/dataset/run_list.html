@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h1>Dataset Runs</h1>
+    <div id="runList"></div>
+</div>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    fetchRunList();
+});
+
+function fetchRunList() {
+    const apiUrl = `/backend/dataset_run/`;
+
+    fetch(apiUrl)
+        .then(response => response.json())
+        .then(data => populateRunList(data.results))
+        .catch(error => console.error('Error fetching run list:', error));
+}
+
+function populateRunList(runs) {
+    const listContainer = document.getElementById('runList');
+    listContainer.innerHTML = '';
+
+    runs.forEach(run => {
+        const viewUrl = `/fe/dataset_run/${run.id}/`;
+        const editUrl = `/fe/dataset_run/${run.id}/edit/`;
+
+        const itemDiv = document.createElement('div');
+        itemDiv.className = 'card mb-3';
+        itemDiv.innerHTML = `
+            <div class="card-header">
+                Dataset Run ${run.id}
+            </div>
+            <div class="card-body">
+                <p class="card-text">Description: ${run.description}</p>
+                <p class="card-text">Version: ${run.version}</p>
+                <p class="card-text">Model: ${run.model}</p>
+                <p class="card-text">Feature Selection Method: ${run.feature_selection_method}</p>
+                <p class="card-text">Number of Features to Select: ${run.n_features_to_select}</p>
+                <p class="card-text">Status: ${run.status}</p>
+                <a href="${viewUrl}" class="btn btn-primary">View Details</a>
+                <a href="${editUrl}" class="btn btn-secondary">Edit</a>
+            </div>
+        `;
+        listContainer.appendChild(itemDiv);
+    });
+}
+</script>
+{% endblock %}
+

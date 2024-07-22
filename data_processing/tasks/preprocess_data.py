@@ -32,10 +32,15 @@ from sklearn.preprocessing import StandardScaler
         "missing_value_imputation": {"strategy": "mode"},
         "encoding": {}
       }
+    },
+    "remove_column": {
+      "data_type": "categorical",
+      "operations": {
+        "drop": {}
+      }
     }
   }
 }
-
 """
 
 
@@ -49,7 +54,6 @@ def preprocess_data(dataset_upload_id, config):
     dataframe = pd.read_csv(original_file_path)
 
     # 2. Clean up the data
-
     for column, specs in config["columns"].items():
         operations = specs["operations"]
 
@@ -67,35 +71,38 @@ def preprocess_data(dataset_upload_id, config):
 
         # Apply other preprocessing operations
         for operation, params in operations.items():
-            if operation != "missing_value_imputation":
-                if operation == "standardization":
-                    dataframe[column] = StandardScaler().fit_transform(dataframe[[column]])
+            if operation == "drop":
+                dataframe.drop(column, axis=1, inplace=True)
 
-                elif operation == "normalization":
-                    dataframe[column] = MinMaxScaler().fit_transform(dataframe[[column]])
+            elif operation == "standardization":
+                dataframe[column] = StandardScaler().fit_transform(dataframe[[column]])
 
-                elif operation == "encoding":
-                    dataframe[column] = LabelEncoder().fit_transform(dataframe[column])
+            elif operation == "normalization":
+                dataframe[column] = MinMaxScaler().fit_transform(dataframe[[column]])
 
-                elif operation == "one_hot_encoding":
-                    one_hot = OneHotEncoder()
-                    transformed_data = one_hot.fit_transform(dataframe[[column]]).toarray()
-                    one_hot_columns = [f"{column}_{category}" for category in one_hot.categories_[0]]
-                    dataframe = dataframe.drop(column, axis=1)
-                    dataframe = pd.concat(
-                        [
-                            dataframe,
-                            pd.DataFrame(transformed_data, columns=one_hot_columns),
-                        ],
-                        axis=1,
-                    )
+            elif operation == "encoding":
+                dataframe[column] = LabelEncoder().fit_transform(dataframe[column])
+
+            elif operation == "one_hot_encoding":
+                one_hot = OneHotEncoder()
+                transformed_data = one_hot.fit_transform(dataframe[[column]]).toarray()
+                one_hot_columns = [f"{column}_{category}" for category in one_hot.categories_[0]]
+                dataframe = dataframe.drop(column, axis=1)
+                dataframe = pd.concat(
+                    [
+                        dataframe,
+                        pd.DataFrame(transformed_data, columns=one_hot_columns),
+                    ],
+                    axis=1,
+                )
 
     # 3. Save the file
     processed_file_path = f"{original_file_path}.processed"
     dataframe.to_csv(processed_file_path, index=False)
-    dataset_preprocessed = DatasetPreprocessed(
-        client_id=dataset_upload.client.id, dataset_file=processed_file_path, dataset_upload=dataset_upload
+    dataset_preprocessed = DatasetPreprocessed.objects.create(
+        client_id=dataset_upload.client.id,
+        dataset_file=processed_file_path,
+        dataset_upload=dataset_upload,
+        predict_column=config["predict_column"],
     )
-    # 4. Create a dataset preprocessed
-    dataset_preprocessed.save()
     return dataset_preprocessed.id

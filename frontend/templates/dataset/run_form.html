@@ -62,7 +62,7 @@ function toggleFeatureSelectionMethodFields() {
 
 function submitDatasetRunForm() {
     const datasetPreprocessedId = {{ dataset_preprocessed_id }};
-    const apiUrl = `/api/dataset_run/`;
+    const apiUrl = `/backend/dataset_run/`;
 
     const data = {
         dataset_preprocessed: datasetPreprocessedId,
@@ -93,7 +93,7 @@ function submitDatasetRunForm() {
     .then(data => {
         console.log('Dataset run created:', data);
         alert('Dataset run created successfully!');
-        window.location.href = '../';  // Redirect to another page if necessary
+        window.location.href = `/fe/dataset_run/${data.id}/`;  // Redirect to the newly created dataset run page
     })
     .catch(error => console.error('Error creating dataset run:', error));
 }
@@ -114,3 +114,4 @@ function getCookie(name) {
 }
 </script>
 {% endblock %}
+

@@ -36,7 +36,7 @@ class DatasetRunViewSet(viewsets.ModelViewSet):
         except DatasetRun.DoesNotExist:
             return Response({"error": "DatasetRun not found"}, status=status.HTTP_404_NOT_FOUND)
         run_feature_selection.delay(
-            dataset_run.dataset_preprocessed.id, dataset_run.feature_selection_method, dataset_run.n_features_to_select
+            dataset_run.id, dataset_run.feature_selection_method, dataset_run.n_features_to_select
         )
         return Response({"message": "Feature selection started"}, status=status.HTTP_202_ACCEPTED)
 

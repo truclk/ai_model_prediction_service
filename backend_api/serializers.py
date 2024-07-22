@@ -26,14 +26,10 @@ class DatasetUploadSerializer(serializers.ModelSerializer):
         fields = "__all__"
         read_only_fields = ["id", "user", "client", "dataset_file"]
 
-    # Get nested model of DatasetMetadata
-    # def to_representation(self, instance):
-    #     self.fields['dataset_metadata'] = DatasetMetadataSerializer(read_only=True)
-    #     return super(DatasetUploadSerializer, self).to_representation(instance)
-
 
 class PreprocessDataConfigSerializer(serializers.Serializer):
     columns = serializers.JSONField()
+    predict_column = serializers.CharField()
 
     def validate_columns(self, value):
         # Add any custom validation logic for the columns field if necessary

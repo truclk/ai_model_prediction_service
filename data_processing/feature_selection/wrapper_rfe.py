@@ -24,3 +24,4 @@ def feature_selection_wrapper_rfe(dataset_preprocessed: DatasetPreprocessed, n_f
     for i in range(X.shape[1]):
         if rfe.support_[i]:
             feature_scores_dict[X.columns[i]] = {}
+    return feature_scores_dict

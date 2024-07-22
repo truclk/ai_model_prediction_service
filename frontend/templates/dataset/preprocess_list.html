@@ -39,11 +39,50 @@ function populatePreprocessedList(preprocessedList) {
                 <p class="card-text">Version: ${item.version}</p>
                 <p class="card-text">Description: ${item.description}</p>
                 <p class="card-text">Predict Column: ${item.predict_column}</p>
-                <a href="{% url 'dataset_run_form' item.id %}" class="btn btn-primary">Create Dataset Run</a>
+                <a href="/fe/dataset_preprocess/${item.id}/create_run/" class="btn btn-primary">Create Dataset Run</a>
+                <button class="btn btn-danger" onclick="deletePreprocessedDataset(${item.id})">Delete</button>
             </div>
         `;
         listContainer.appendChild(itemDiv);
     });
 }
+
+function deletePreprocessedDataset(id) {
+    const deleteUrl = `/backend/preprocess/${id}/`;
+    const csrftoken = getCookie('csrftoken');
+
+    fetch(deleteUrl, {
+        method: 'DELETE',
+        headers: {
+            'X-CSRFToken': csrftoken,
+        }
+    })
+    .then(response => {
+        if (response.ok) {
+            alert('Preprocessed dataset deleted successfully!');
+            fetchPreprocessedData();  // Refresh the list after deletion
+        } else {
+            throw new Error('Failed to delete the preprocessed dataset.');
+        }
+    })
+    .catch(error => console.error('Error deleting preprocessed dataset:', error));
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+const csrftoken = getCookie('csrftoken');
 </script>
 {% endblock %}

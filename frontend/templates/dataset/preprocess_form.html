@@ -3,6 +3,12 @@
 <div class="container mt-4">
     <h1>Preprocess Configuration for {{ dataset.name }}</h1>
     <form id="preprocessConfigForm">
+        <div class="form-group">
+            <label for="predictColumn">Predict Column</label>
+            <select class="form-control" id="predictColumn" name="predictColumn">
+                <!-- Options will be populated dynamically -->
+            </select>
+        </div>
         <div id="columnsConfig"></div>
         <button type="button" id="submitPreprocessConfig" class="btn btn-primary">Submit</button>
     </form>
@@ -22,8 +28,23 @@ function fetchMetadata() {
 
     fetch(metadataUrl)
         .then(response => response.json())
-        .then(data => generatePreprocessConfigForm(data))
+        .then(data => {
+            populatePredictColumnOptions(data.columns);
+            generatePreprocessConfigForm(data);
+        })
         .catch(error => console.error('Error fetching metadata:', error));
+}
+
+function populatePredictColumnOptions(columns) {
+    const predictColumnSelect = document.getElementById('predictColumn');
+    predictColumnSelect.innerHTML = '';  // Clear previous options
+
+    columns.forEach(column => {
+        const option = document.createElement('option');
+        option.value = column;
+        option.textContent = column;
+        predictColumnSelect.appendChild(option);
+    });
 }
 
 function generatePreprocessConfigForm(metadata) {
@@ -135,6 +156,7 @@ function submitPreprocessConfig() {
         }
     }
 
+    const predictColumn = document.getElementById('predictColumn').value;
     const datasetId = {{ dataset.id }};
     const preprocessUrl = `/backend/dataset/${datasetId}/trigger_preprocess/`;
 
@@ -144,7 +166,7 @@ function submitPreprocessConfig() {
             'Content-Type': 'application/json',
             'X-CSRFToken': csrftoken,
         },
-        body: JSON.stringify({ columns: columnsConfig }),
+        body: JSON.stringify({ columns: columnsConfig, predict_column: predictColumn }),
     })
     .then(response => {
         if (response.ok) {
@@ -155,6 +177,7 @@ function submitPreprocessConfig() {
     .then(data => {
         console.log('Preprocessing started:', data);
         alert('Preprocessing started successfully!');
+        window.location.href = `/fe/dataset/${datasetId}/`;  // Redirect to the dataset details page
     })
     .catch(error => console.error('Error triggering preprocess:', error));
 }

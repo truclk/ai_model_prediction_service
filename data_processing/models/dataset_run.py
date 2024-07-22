@@ -19,9 +19,7 @@ class DatasetRun(TimeStampedModel):
         default="rfe",
     )
     dataset_preprocessed = models.ForeignKey("data_processing.DatasetPreprocessed", on_delete=models.CASCADE)
-    predict_column = models.CharField(max_length=255, default="")
     features = models.JSONField()  # List of features in json array
-    target = models.CharField(max_length=255)  # The target column name
     model = models.CharField(
         max_length=255,
         choices=[

@@ -1,16 +1,18 @@
 import pandas as pd
-from backend_api.models import DatasetUpload
+from data_processing.models import DatasetPreprocessed
 from sklearn.feature_selection import SelectKBest
 from sklearn.feature_selection import chi2
 
 # Load data
 
 
-def feature_selection_filter_chisquare(dataset_upload: DatasetUpload, n_features_to_select=5, predict_column=None):
-    predict_column = predict_column or dataset_upload.predict_column
-    df = pd.read_csv(dataset_upload.dataset_file.path)
+def feature_selection_filter_chisquare(
+    dataset_preprocessed: DatasetPreprocessed, n_features_to_select=5, predict_column=None
+):
+    predict_column = predict_column or dataset_preprocessed.predict_column
+    df = pd.read_csv(dataset_preprocessed.dataset_file.path)
     X = df.drop(predict_column, axis=1)
-    y = df[predict_column or dataset_upload.predict_column]
+    y = df[predict_column or dataset_preprocessed.predict_column]
     best_features = SelectKBest(score_func=chi2, k=n_features_to_select)
     fit = best_features.fit(X, y)
 

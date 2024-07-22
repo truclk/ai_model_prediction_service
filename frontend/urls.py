@@ -19,10 +19,13 @@ urlpatterns = [
     path("dataset/<int:pk>/preprocess/", views.PreprocessConfigView.as_view(), name="preprocess_form"),
     path("dataset/<int:pk>/preprocess_list/", views.PreprocessListView.as_view(), name="preprocess_list"),
     path(
-        "dataset_run/<int:dataset_preprocessed_id>/create/",
+        "dataset_preprocess/<int:dataset_preprocessed_id>/create_run/",
         views.DatasetRunCreateView.as_view(),
         name="dataset_run_form",
     ),
+    path("dataset_run/<int:dataset_run_id>/", views.DatasetRunView.as_view(), name="dataset_run_view"),
+    path("dataset_run/<int:dataset_run_id>/edit/", views.DatasetRunEditView.as_view(), name="dataset_run_edit"),
+    path("dataset_run/", views.DatasetRunListView.as_view(), name="dataset_run_list"),
     path("dataset_form/<int:pk>/", views.DatasetDetail.as_view(), name="dataset_form"),
     path(r"login/", views.user_login, name="user_login"),
     path(r"logout/", views.user_logout, name="user_logout")
