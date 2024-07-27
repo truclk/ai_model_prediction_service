@@ -1,8 +1,3 @@
-# Execute a notebook over Jupyter Lab API
-#
-# Based on https://stackoverflow.com/a/54551221/942520
-
-import argparse
 import datetime
 import json
 import os
@@ -11,7 +6,6 @@ import uuid
 from pprint import pprint
 
 import requests
-from websocket import WebSocketTimeoutException
 from websocket import create_connection
 
 if "JUPYTER_TOKEN" not in os.environ:
@@ -37,40 +31,41 @@ def upload_notebook(notebook_path, notebook_content):
     pass
 
 
-# Main function
-# This is the entrypoint for both local and cloud execution
-# The event and context arguments are only used when running in the cloud
-def main(notebook_path=None, training_file_path=None, predict_column=None):
+def get_csrf_token(jupyter_server, headers):
+    url = f"http://{jupyter_server}"
+    response = requests.get(url, headers=headers)
+    if response.status_code == 200:
+        for cookie in response.cookies:
+            if cookie.name == "_xsrf":
+                return cookie.value
+    raise Exception("Could not get CSRF token")
 
+
+def main(notebook_path=None, training_file_path=None, predict_column=None):
     verbose = False
-    # Notebook path on Jupyter server with a leading slash
     notebook_path = notebook_path
     training_file_path = training_file_path
     predict_column = predict_column
-    # Either http or https
     protocol = "http"
-    # Jupyter server address and port
     jupyter_server = os.environ.get("JUPYTER_SERVER")
     headers = {"Authorization": f"Token {os.environ['JUPYTER_TOKEN']}"}
-    # Create a kernel
+    errors = []
+
+    csrf_token = get_csrf_token(jupyter_server, headers)
+    headers["X-CSRFToken"] = csrf_token
+
     url = f"{protocol}://{jupyter_server}/api/kernels"
     print(f"Creating a new kernel at {url}", file=sys.stderr)
     with requests.post(url, headers=headers) as response:
         pprint({"kernel": response.headers}, sys.stderr) if verbose else None
         kernel = json.loads(response.text)
 
-    # Load the notebook and get the code of each cell
     url = f"{protocol}://{jupyter_server}/api/contents{notebook_path}"
     with requests.get(url, headers=headers) as response:
         file = json.loads(response.text)
     pprint({"notebook_content": file}, sys.stderr) if verbose else None
-    # filter out non-code cells like markdown
-    code = [
-        c["source"]
-        for c in file["content"]["cells"]
-        if len(c["source"]) > 0 and c["cell_type"] == "code"
-    ]
-    # Execution request/reply is done on websockets channels
+    code = [c["source"] for c in file["content"]["cells"] if len(c["source"]) > 0 and c["cell_type"] == "code"]
+
     ws = create_connection(
         f"{'ws' if protocol == 'http' else 'wss'}://{jupyter_server}/api/kernels/{kernel['id']}/channels",
         header=headers,
@@ -93,6 +88,7 @@ def main(notebook_path=None, training_file_path=None, predict_column=None):
             rsp = json.loads(ws.recv())
             msg_type = rsp["msg_type"]
             if msg_type == "error":
+                errors.append(rsp["content"]["evalue"])
                 pprint({"exception": rsp["content"]}, sys.stderr)
                 raise Exception(rsp["content"]["traceback"][0])
         except Exception as _e:
@@ -117,11 +113,10 @@ def main(notebook_path=None, training_file_path=None, predict_column=None):
     print("Processing finished. Closing websocket connection", file=sys.stderr)
     ws.close()
 
-    # Delete the kernel
     print("Deleting kernel", file=sys.stderr)
     url = f"{protocol}://{jupyter_server}/api/kernels/{kernel['id']}"
     response = requests.delete(url, headers=headers)
-    return {"accuracy_score": accuracy_score, "roc_auc_score": roc_auc_score}
+    return {"accuracy_score": accuracy_score, "roc_auc_score": roc_auc_score}, errors
 
 
 if __name__ == "__main__":

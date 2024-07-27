@@ -12,7 +12,19 @@
                 <p class="card-text">Dataset Name: <span id="datasetName"></span></p>
                 <p class="card-text">Description: <span id="runDescription"></span></p>
                 <p class="card-text">Version: <span id="runVersion"></span></p>
-                <p class="card-text">Model: <span id="runModel"></span></p>
+                <div class="form-group">
+                    <label for="models">Models</label>
+                    <div id="models" class="form-check">
+                        <input class="form-check-input" type="checkbox" value="naive_bayes" id="model_naive_bayes">
+                        <label class="form-check-label" for="model_naive_bayes">Naive Bayes</label><br>
+                        <input class="form-check-input" type="checkbox" value="knn" id="model_knn">
+                        <label class="form-check-label" for="model_knn">K-Nearest Neighbors</label><br>
+                        <input class="form-check-input" type="checkbox" value="lgbm" id="model_lgbm">
+                        <label class="form-check-label" for="model_lgbm">LightGBM</label><br>
+                        <input class="form-check-input" type="checkbox" value="logistic_regression" id="model_logistic_regression">
+                        <label class="form-check-label" for="model_logistic_regression">Logistic Regression</label>
+                    </div>
+                </div>
                 <div class="form-group">
                     <label for="featureSelectionMethod">Feature Selection Method</label>
                     <select class="form-control" id="featureSelectionMethod" name="featureSelectionMethod">
@@ -28,10 +40,6 @@
                 <div class="form-group">
                     <label for="features">Features (JSON format)</label>
                     <textarea class="form-control" id="features" name="features" required></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="parameters">Parameters (JSON format)</label>
-                    <textarea class="form-control" id="parameters" name="parameters" required></textarea>
                 </div>
                 <button type="button" class="btn btn-primary" onclick="submitDatasetRunForm()">Save Changes</button>
                 <a href="{% url 'dataset_run_view' dataset_run_id %}" class="btn btn-secondary">Cancel</a>
@@ -59,22 +67,27 @@ function populateRunDetails(run) {
     document.getElementById('runDescription').textContent = run.description;
     document.getElementById('datasetName').textContent = run.dataset_name;
     document.getElementById('runVersion').textContent = run.version;
-    document.getElementById('runModel').textContent = run.model;
     document.getElementById('featureSelectionMethod').value = run.feature_selection_method;
     document.getElementById('nFeaturesToSelect').value = run.n_features_to_select;
     document.getElementById('features').value = JSON.stringify(run.features, null, 2);
-    document.getElementById('parameters').value = JSON.stringify(run.parameters, null, 2);
+
+    // Check the appropriate models
+    run.models.forEach(model => {
+        document.getElementById(`model_${model}`).checked = true;
+    });
 }
 
 function submitDatasetRunForm() {
     const runId = {{ dataset_run_id }};
     const apiUrl = `/backend/dataset_run/${runId}/`;
 
+    const models = Array.from(document.querySelectorAll('#models input:checked')).map(checkbox => checkbox.value);
+
     const data = {
+        models: models,
         feature_selection_method: document.getElementById('featureSelectionMethod').value,
         n_features_to_select: document.getElementById('nFeaturesToSelect').value,
         features: JSON.parse(document.getElementById('features').value),
-        parameters: JSON.parse(document.getElementById('parameters').value)
     };
 
     fetch(apiUrl, {

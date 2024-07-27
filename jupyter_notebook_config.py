@@ -1059,4 +1059,4 @@ c = get_config()  # noqa
 
 c.IdentityProvider.token = "7eeb99a4db374ecead433d9563fbd409"
 c.ServerApp.root_dir = "./server_runtime"
-c.ServerApp.token = "7eeb99a4db374ecead433d9563fbd409"
+c.ServerApp.disable_check_xsrf = True

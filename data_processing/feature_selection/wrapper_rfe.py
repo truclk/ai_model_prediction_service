@@ -10,18 +10,15 @@ def feature_selection_wrapper_rfe(dataset_preprocessed: DatasetPreprocessed, n_f
     X = df.drop(predict_column, axis=1)
     y = df[predict_column]
     model = RandomForestClassifier()
-    rfe = RFE(model, n_features_to_select=5)
+    rfe = RFE(model, n_features_to_select=n_features_to_select)
 
     # Fit the model
     rfe = rfe.fit(X, y)
 
-    # Print the chosen features
-    print("Chosen Features: ")
-    for i in range(X.shape[1]):
-        if rfe.support_[i]:
-            print(X.columns[i])
+    # Get the chosen features and their scores
     feature_scores_dict = {}
     for i in range(X.shape[1]):
         if rfe.support_[i]:
             feature_scores_dict[X.columns[i]] = {}
+
     return feature_scores_dict

@@ -89,3 +89,13 @@ class DatasetRunListView(View):
     def get(self, request):
         client_id = request.session.get("client_id")
         return render(request, self.template_name, {"client_id": client_id})
+
+
+class DatasetRunResultListView(View):
+    template_name = "dataset/dataset_run_result_list.html"
+
+    def get(self, request, dataset_run_id):
+        context = {
+            "dataset_run_id": dataset_run_id,
+        }
+        return render(request, self.template_name, context)

@@ -35,7 +35,7 @@ function populateRunList(runs) {
             <div class="card-body">
                 <p class="card-text">Description: ${run.description}</p>
                 <p class="card-text">Version: ${run.version}</p>
-                <p class="card-text">Model: ${run.model}</p>
+                <p class="card-text">Models: ${run.models.join(', ')}</p>
                 <p class="card-text">Feature Selection Method: ${run.feature_selection_method}</p>
                 <p class="card-text">Number of Features to Select: ${run.n_features_to_select}</p>
                 <p class="card-text">Status: ${run.status}</p>

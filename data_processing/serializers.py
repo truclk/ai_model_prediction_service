@@ -2,6 +2,7 @@ from rest_framework import serializers
 
 from data_processing.models import DatasetPreprocessed
 from data_processing.models import DatasetRun
+from data_processing.models import DatasetRunResult
 
 
 class DatasetPreprocessedSerializer(serializers.ModelSerializer):
@@ -13,6 +14,8 @@ class DatasetPreprocessedSerializer(serializers.ModelSerializer):
 
 class DatasetRunSerializer(serializers.ModelSerializer):
     dataset_name = serializers.SerializerMethodField()
+    number_of_results = serializers.SerializerMethodField()
+    predict_column = serializers.CharField(source="dataset_preprocessed.predict_column")
 
     class Meta:
         model = DatasetRun
@@ -21,6 +24,9 @@ class DatasetRunSerializer(serializers.ModelSerializer):
 
     def get_dataset_name(self, obj):
         return obj.dataset_preprocessed.dataset_upload.name
+
+    def get_number_of_results(self, obj):
+        return obj.datasetrunresult_set.count()
 
     def validate(self, data):
         # Check if the dataset_preprocessed is from the same client
@@ -31,3 +37,10 @@ class DatasetRunSerializer(serializers.ModelSerializer):
             if dataset_preprocessed.client.id != self.context["request"].session.get("client_id"):
                 raise serializers.ValidationError("DatasetPreprocessed is not from the same client")
         return data
+
+
+class DatasetRunResultSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DatasetRunResult
+        fields = "__all__"
+        # TODO Readonly all

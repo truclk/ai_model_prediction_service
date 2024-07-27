@@ -65,7 +65,7 @@ class DatasetUpload(TimeStampedModel):
     client = models.ForeignKey("Client", on_delete=models.CASCADE, null=True)
     dataset_file = models.FileField(upload_to=upload_tenant_directory_path)
     name = models.CharField(max_length=255, default="")
-    features = models.JSONField(null=True)
+    description = models.TextField(default="")
     predict_column = models.CharField(max_length=255, default="")
     status = models.CharField(
         max_length=255,

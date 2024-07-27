@@ -19,9 +19,3 @@ class DatasetPreprocessed(TimeStampedModel):
     version = models.CharField(max_length=255)
     description = models.TextField()
     predict_column = models.CharField(max_length=255, default="")
-
-    # raw_data_schema = models.JSONField()
-    # raw_path = models.CharField(max_length=1024)
-
-    # processed_data_schema = models.JSONField()
-    # processed_path = models.CharField(max_length=1024)

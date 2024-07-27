@@ -20,19 +20,6 @@ class DatasetRun(TimeStampedModel):
     )
     dataset_preprocessed = models.ForeignKey("data_processing.DatasetPreprocessed", on_delete=models.CASCADE)
     features = models.JSONField()  # List of features in json array
-    model = models.CharField(
-        max_length=255,
-        choices=[
-            ("naive_bayes", "Naive Bayes"),
-            ("knn", "K-Nearest Neighbors"),
-            ("lgbm", "LightGBM"),
-            ("logistic_regression", "Logistic Regression"),
-            # ("decision_tree", "Decision Tree"),
-            # ("random_forest", "Random Forest"),
-            # ("svm", "Support Vector Machine"),
-        ],
-        default="naive_bayes",
-    )  # The model name for training
     parameters = models.JSONField()  # The parameters for the model
     status = models.CharField(
         max_length=255,
@@ -45,3 +32,5 @@ class DatasetRun(TimeStampedModel):
         ],
         default="PENDING",
     )
+    errors = models.JSONField(null=True)  # The errors that occurred during training
+    models = models.JSONField(null=True)  # The models that were trained

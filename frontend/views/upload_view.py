@@ -1,5 +1,6 @@
 from data_processing.tasks.analyze_metadata import analyze_metadata
 from django.contrib.auth.decorators import login_required
+from django.shortcuts import redirect
 from django.shortcuts import render
 from frontend.forms import FileUploadForm
 
@@ -16,7 +17,7 @@ def upload_file(request):
             # Trigger the analyze_metadata task
             analyze_metadata.delay(dataset_upload.id)
             # Redirect or show a success message after saving
-            return render(request, "dataset/success.html")
+            return redirect("dataset_detail", dataset_id=dataset_upload.id)
     else:
         form = FileUploadForm()
     return render(request, "dataset/upload.html", {"form": form})

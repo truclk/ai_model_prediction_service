@@ -10,3 +10,29 @@ class DatasetRunResult(TimeStampedModel):
     number_of_features = models.IntegerField()
     method = models.CharField(max_length=255, default="", null=True)
     features = models.JSONField()
+    results = models.JSONField(null=True)
+    model = models.CharField(
+        max_length=255,
+        choices=[
+            ("naive_bayes", "Naive Bayes"),
+            ("knn", "K-Nearest Neighbors"),
+            ("lgbm", "LightGBM"),
+            ("logistic_regression", "Logistic Regression"),
+            # ("decision_tree", "Decision Tree"),
+            # ("random_forest", "Random Forest"),
+            # ("svm", "Support Vector Machine"),
+        ],
+        default="naive_bayes",
+    )  # The model name for training
+    errors = models.JSONField(null=True)  # The errors that occurred during training
+    status = models.CharField(
+        max_length=255,
+        choices=[
+            ("PENDING", "PENDING"),
+            ("STARTED", "STARTED"),
+            ("RUNNING", "RUNNING"),
+            ("SUCCESS", "SUCCESS"),
+            ("FAILED", "FAILED"),
+        ],
+        default="PENDING",
+    )

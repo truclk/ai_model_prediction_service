@@ -1,9 +1,35 @@
 {% extends "base.html" %}
+{% load bootstrap5 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
 {% block content %}
-    <h2>Upload File</h2>
-    <form method="post" enctype="multipart/form-data">
+<div class="container mt-4">
+    <h2 class="mb-4">Upload File</h2>
+    <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
         {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Upload</button>
+        <div class="mb-3">
+            {% bootstrap_form form %}
+        </div>
+        <button type="submit" class="btn btn-primary">Upload</button>
     </form>
+</div>
 {% endblock %}
+
+<script>
+    // Example JavaScript for disabling form submissions if there are invalid fields
+    (function () {
+        'use strict'
+        var forms = document.querySelectorAll('.needs-validation')
+        Array.prototype.slice.call(forms)
+            .forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
+                    form.classList.add('was-validated')
+                }, false)
+            })
+    })()
+</script>
+

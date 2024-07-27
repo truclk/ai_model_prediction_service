@@ -26,6 +26,11 @@ urlpatterns = [
     path("dataset_run/<int:dataset_run_id>/", views.DatasetRunView.as_view(), name="dataset_run_view"),
     path("dataset_run/<int:dataset_run_id>/edit/", views.DatasetRunEditView.as_view(), name="dataset_run_edit"),
     path("dataset_run/", views.DatasetRunListView.as_view(), name="dataset_run_list"),
+    path(
+        "dataset_run/<int:dataset_run_id>/results/",
+        views.DatasetRunResultListView.as_view(),
+        name="dataset_run_result_list",
+    ),
     path("dataset_form/<int:pk>/", views.DatasetDetail.as_view(), name="dataset_form"),
     path(r"login/", views.user_login, name="user_login"),
     path(r"logout/", views.user_logout, name="user_logout")

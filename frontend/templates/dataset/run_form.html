@@ -12,13 +12,17 @@
             <input type="text" class="form-control" id="version" required>
         </div>
         <div class="form-group">
-            <label for="model">Model</label>
-            <select class="form-control" id="model" required>
-                <option value="naive_bayes">Naive Bayes</option>
-                <option value="knn">K-Nearest Neighbors</option>
-                <option value="lgbm">LightGBM</option>
-                <option value="logistic_regression">Logistic Regression</option>
-            </select>
+            <label for="models">Models</label>
+            <div id="models" class="form-check">
+                <input class="form-check-input" type="checkbox" value="naive_bayes" id="model_naive_bayes">
+                <label class="form-check-label" for="model_naive_bayes">Naive Bayes</label><br>
+                <input class="form-check-input" type="checkbox" value="knn" id="model_knn">
+                <label class="form-check-label" for="model_knn">K-Nearest Neighbors</label><br>
+                <input class="form-check-input" type="checkbox" value="lgbm" id="model_lgbm">
+                <label class="form-check-label" for="model_lgbm">LightGBM</label><br>
+                <input class="form-check-input" type="checkbox" value="logistic_regression" id="model_logistic_regression">
+                <label class="form-check-label" for="model_logistic_regression">Logistic Regression</label>
+            </div>
         </div>
         <div class="form-group">
             <label for="featureSelectionMethod">Feature Selection Method</label>
@@ -35,10 +39,6 @@
         <div class="form-group" id="featuresGroup" style="display:none;">
             <label for="features">Features (JSON format)</label>
             <textarea class="form-control" id="features"></textarea>
-        </div>
-        <div class="form-group">
-            <label for="parameters">Parameters (JSON format)</label>
-            <textarea class="form-control" id="parameters" required></textarea>
         </div>
         <button type="button" class="btn btn-primary" onclick="submitDatasetRunForm()">Submit</button>
     </form>
@@ -64,11 +64,13 @@ function submitDatasetRunForm() {
     const datasetPreprocessedId = {{ dataset_preprocessed_id }};
     const apiUrl = `/backend/dataset_run/`;
 
+    const models = Array.from(document.querySelectorAll('#models input:checked')).map(checkbox => checkbox.value);
+
     const data = {
         dataset_preprocessed: datasetPreprocessedId,
         description: document.getElementById('description').value,
         version: document.getElementById('version').value,
-        model: document.getElementById('model').value,
+        models: models,
         feature_selection_method: document.getElementById('featureSelectionMethod').value,
         n_features_to_select: document.getElementById('nFeaturesToSelect').value,
         features: document.getElementById('features').value,

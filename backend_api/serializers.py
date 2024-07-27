@@ -24,7 +24,7 @@ class DatasetUploadSerializer(serializers.ModelSerializer):
     class Meta:
         model = DatasetUpload
         fields = "__all__"
-        read_only_fields = ["id", "user", "client", "dataset_file"]
+        read_only_fields = ["id", "user", "client", "dataset_file", "status"]
 
 
 class PreprocessDataConfigSerializer(serializers.Serializer):

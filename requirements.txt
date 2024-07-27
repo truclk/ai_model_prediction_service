@@ -9,3 +9,4 @@ django-model-utils
 redis
 scikit-learn
 django-filter
+lightgbm

@@ -6,9 +6,12 @@ from rest_framework.response import Response
 
 from data_processing.models import DatasetPreprocessed
 from data_processing.models import DatasetRun
+from data_processing.models import DatasetRunResult
 from data_processing.serializers import DatasetPreprocessedSerializer
+from data_processing.serializers import DatasetRunResultSerializer
 from data_processing.serializers import DatasetRunSerializer
 from data_processing.tasks.feature_selection import run_feature_selection
+from data_processing.tasks.train import train_dataset_run
 
 
 # Create your views here.
@@ -42,9 +45,22 @@ class DatasetRunViewSet(viewsets.ModelViewSet):
     def train(self, request, pk=None):
         try:
             dataset_run = DatasetRun.objects.get(id=pk)
+            train_dataset_run.delay(dataset_run.id)
+
         except DatasetRun.DoesNotExist:
             return Response({"error": "DatasetRun not found"}, status=status.HTTP_404_NOT_FOUND)
+        return Response({"message": "Training started"}, status=status.HTTP_202_ACCEPTED)
 
     def perform_create(self, serializer):
         client_id = self.request.session.get("client_id")
         serializer.save(client_id=client_id)
+
+
+class DatasetRunResultViewSet(viewsets.ModelViewSet):
+    queryset = DatasetRunResult.objects.all()
+    serializer_class = DatasetRunResultSerializer
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_fields = ("client_id", "dataset_run_id")
+
+    def get_queryset(self):
+        return DatasetRunResult.objects.filter(client_id=self.request.session.get("client_id"))
