@@ -1,7 +1,7 @@
 from celery import shared_task
 from data_processing.models import DatasetRun
 from data_processing.models import DatasetRunResult
-from jupiter_service.nbrunner import main
+from jupiter_service.nbrunner import main_training
 
 NOTEBOOKS = [
     "naive_bayes.ipynb",
@@ -38,8 +38,11 @@ def train_dataset_run(dataset_run_id):
             method=dataset_run.feature_selection_method,
             features=dataset_run.features,
         )
+        features = dataset_run.features.keys()
         dataset_run_result.status = "RUNNING"
-        results, errors = main(notebook_path, training_file_path=path, predict_column=predict_column)
+        results, errors = main_training(
+            notebook_path, training_file_path=path, predict_column=predict_column, features=features
+        )
         dataset_run_result.results = results
         dataset_run_result.errors = errors
         dataset_run_result.status = "SUCCESS" if not errors else "FAILED"

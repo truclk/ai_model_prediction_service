@@ -41,7 +41,7 @@ def get_csrf_token(jupyter_server, headers):
     raise Exception("Could not get CSRF token")
 
 
-def main(notebook_path=None, training_file_path=None, predict_column=None):
+def main_training(notebook_path=None, training_file_path=None, predict_column=None, features=None):
     verbose = False
     notebook_path = notebook_path
     training_file_path = training_file_path
@@ -73,10 +73,14 @@ def main(notebook_path=None, training_file_path=None, predict_column=None):
 
     print("Sending execution requests for each cell", file=sys.stderr)
     for code_line in code:
-        if code_line.startswith("training_file = ") and training_file_path is not None:
-            code_line = f"training_file = '{training_file_path}'"
-        elif code_line.startswith("predict_column = ") and predict_column is not None:
-            code_line = f"predict_column = '{predict_column}'"
+        if code_line.startswith("dsr_training_file = ") and training_file_path is not None:
+            code_line = f"dsr_training_file = '{training_file_path}'"
+        elif code_line.startswith("dsr_predict_column = ") and predict_column is not None:
+            code_line = f"dsr_predict_column = '{predict_column}'"
+        elif code_line.startswith("dsr_features = ") and features is not None:
+            # I want to have feature print in list format with quotes in string
+            feature_str = ", ".join([f"'{f}'" for f in features])
+            code_line = f"dsr_features = [{feature_str}]"
         ws.send(json.dumps(send_execute_request(code_line)))
 
     code_blocks_to_execute = len(code)
@@ -120,4 +124,4 @@ def main(notebook_path=None, training_file_path=None, predict_column=None):
 
 
 if __name__ == "__main__":
-    print(main(None))
+    print(main_training(None))
