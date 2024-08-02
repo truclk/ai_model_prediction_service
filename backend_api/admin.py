@@ -18,8 +18,6 @@ from backend_api import models
 
 
 class DatasetUploadAdmin(admin.ModelAdmin):
-    list_display = ("name", "predict_column", "status")
-    actions = ["detect_features", "process_dataset_upload"]
 
     # def process_dataset_upload(self, request, queryset):
     #     for dataset_upload in queryset:

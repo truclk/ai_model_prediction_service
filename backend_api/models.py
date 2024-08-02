@@ -66,7 +66,6 @@ class DatasetUpload(TimeStampedModel):
     dataset_file = models.FileField(upload_to=upload_tenant_directory_path)
     name = models.CharField(max_length=255, default="")
     description = models.TextField(default="")
-    predict_column = models.CharField(max_length=255, default="")
     status = models.CharField(
         max_length=255,
         choices=[
@@ -88,4 +87,3 @@ class DatasetMetadata(TimeStampedModel):
     metadata = models.JSONField(null=True)
     row_count = models.IntegerField(null=True)
     column_count = models.IntegerField(null=True)
-    predict_column = models.CharField(max_length=255, default="")

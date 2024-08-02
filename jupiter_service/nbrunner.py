@@ -41,7 +41,7 @@ def get_csrf_token(jupyter_server, headers):
     raise Exception("Could not get CSRF token")
 
 
-def main_training(notebook_path=None, training_file_path=None, predict_column=None, features=None):
+def main_training(notebook_path=None, training_file_path=None, predict_column=None, features=None, parameters_str=None):
     verbose = False
     notebook_path = notebook_path
     training_file_path = training_file_path
@@ -63,6 +63,10 @@ def main_training(notebook_path=None, training_file_path=None, predict_column=No
     url = f"{protocol}://{jupyter_server}/api/contents{notebook_path}"
     with requests.get(url, headers=headers) as response:
         file = json.loads(response.text)
+        if response.status_code != 200:
+            errors.append(response.text)
+            return {}, errors
+
     pprint({"notebook_content": file}, sys.stderr) if verbose else None
     code = [c["source"] for c in file["content"]["cells"] if len(c["source"]) > 0 and c["cell_type"] == "code"]
 
@@ -81,11 +85,16 @@ def main_training(notebook_path=None, training_file_path=None, predict_column=No
             # I want to have feature print in list format with quotes in string
             feature_str = ", ".join([f"'{f}'" for f in features])
             code_line = f"dsr_features = [{feature_str}]"
+        elif code_line.startswith("dsr_parameters_str = ") and features is not None:
+            # I want to have feature print in list format with quotes in string
+            code_line = f"dsr_parameters_str = '{parameters_str}'"
         ws.send(json.dumps(send_execute_request(code_line)))
 
     code_blocks_to_execute = len(code)
     accuracy_score = 0
     roc_auc_score = 0
+    f1_score = 0
+    best_parameters = ""
 
     while code_blocks_to_execute > 0:
         try:
@@ -106,6 +115,11 @@ def main_training(notebook_path=None, training_file_path=None, predict_column=No
                 accuracy_score = float(rsp["content"]["text"].strip().split(":")[1])
             if rsp["content"]["text"].startswith("roc_auc_score:"):
                 roc_auc_score = float(rsp["content"]["text"].strip().split(":")[1])
+            if rsp["content"]["text"].startswith("f1_score:"):
+                f1_score = float(rsp["content"]["text"].strip().split(":")[1])
+            if rsp["content"]["text"].startswith("best_parameters:"):
+                best_parameters = rsp["content"]["text"].replace("best_parameters:", "")
+            print(rsp["content"]["text"])
 
         if (
             msg_type == "execute_reply"
@@ -120,7 +134,12 @@ def main_training(notebook_path=None, training_file_path=None, predict_column=No
     print("Deleting kernel", file=sys.stderr)
     url = f"{protocol}://{jupyter_server}/api/kernels/{kernel['id']}"
     response = requests.delete(url, headers=headers)
-    return {"accuracy_score": accuracy_score, "roc_auc_score": roc_auc_score}, errors
+    return {
+        "accuracy_score": accuracy_score,
+        "roc_auc_score": roc_auc_score,
+        "f1_score": f1_score,
+        "best_parameters": best_parameters,
+    }, errors
 
 
 if __name__ == "__main__":

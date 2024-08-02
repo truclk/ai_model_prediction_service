@@ -19,8 +19,7 @@ class DatasetRun(TimeStampedModel):
         default="rfe",
     )
     dataset_preprocessed = models.ForeignKey("data_processing.DatasetPreprocessed", on_delete=models.CASCADE)
-    features = models.JSONField()  # List of features in json array
-    parameters = models.JSONField()  # The parameters for the model
+    features = models.JSONField(null=True)  # List of features in json array
     status = models.CharField(
         max_length=255,
         choices=[

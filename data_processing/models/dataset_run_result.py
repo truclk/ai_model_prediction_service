@@ -11,6 +11,7 @@ class DatasetRunResult(TimeStampedModel):
     method = models.CharField(max_length=255, default="", null=True)
     features = models.JSONField()
     results = models.JSONField(null=True)
+    parameters = models.JSONField(null=True)
     model = models.CharField(
         max_length=255,
         choices=[

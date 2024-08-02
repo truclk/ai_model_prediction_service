@@ -6,4 +6,4 @@ from django import forms
 class FileUploadForm(forms.ModelForm):
     class Meta:
         model = DatasetUpload
-        fields = ["name", "dataset_file", "predict_column", "description"]
+        fields = ["name", "dataset_file", "description"]

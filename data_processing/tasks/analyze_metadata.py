@@ -23,7 +23,6 @@ def analyze_metadata(dataset_upload_id):
     dataset_metadata.metadata = metadata
     dataset_metadata.row_count = df.shape[0]
     dataset_metadata.column_count = df.shape[1]
-    dataset_metadata.predict_column = dataset_upload.predict_column
     dataset_metadata.save()
     dataset_upload.status = "DETECTED_METADATA"
     dataset_upload.save()

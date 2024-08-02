@@ -14,8 +14,8 @@
         <div class="form-group">
             <label for="models">Models</label>
             <div id="models" class="form-check">
-                <input class="form-check-input" type="checkbox" value="naive_bayes" id="model_naive_bayes">
-                <label class="form-check-label" for="model_naive_bayes">Naive Bayes</label><br>
+                <input class="form-check-input" type="checkbox" value="naive_bayes_multiclass" id="model_naive_bayes_multiclass">
+                <label class="form-check-label" for="model_naive_bayes_multiclass">Naive Bayes Multiclass</label><br>
                 <input class="form-check-input" type="checkbox" value="knn" id="model_knn">
                 <label class="form-check-label" for="model_knn">K-Nearest Neighbors</label><br>
                 <input class="form-check-input" type="checkbox" value="lgbm" id="model_lgbm">
@@ -74,8 +74,6 @@ function submitDatasetRunForm() {
         feature_selection_method: document.getElementById('featureSelectionMethod').value,
         n_features_to_select: document.getElementById('nFeaturesToSelect').value,
         features: document.getElementById('features').value,
-        parameters: document.getElementById('parameters').value,
-        predict_column: '' // Add predict_column if needed
     };
 
     fetch(apiUrl, {

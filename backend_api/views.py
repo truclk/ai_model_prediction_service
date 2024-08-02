@@ -1,3 +1,4 @@
+from data_processing.tasks.analyze_metadata import analyze_metadata
 from data_processing.tasks.preprocess_data import preprocess_data
 from rest_framework import status
 from rest_framework import viewsets
@@ -58,6 +59,7 @@ class DatasetUploadViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=["get", "post"])
     def trigger_analyse(self, request, pk=None):
         # This would trigger the phase of pre-processing and analysis the metadata
+        analyze_metadata.delay(pk)
         return Response(status=status.HTTP_200_OK)
 
     @action(detail=True, methods=["get", "post"])

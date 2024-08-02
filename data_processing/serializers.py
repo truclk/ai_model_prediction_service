@@ -13,17 +13,15 @@ class DatasetPreprocessedSerializer(serializers.ModelSerializer):
 
 
 class DatasetRunSerializer(serializers.ModelSerializer):
-    dataset_name = serializers.SerializerMethodField()
+    dataset_name = serializers.CharField(source="dataset_preprocessed.dataset_upload.name", read_only=True)
+    dataset_id = serializers.IntegerField(source="dataset_preprocessed.dataset_upload.id", read_only=True)
     number_of_results = serializers.SerializerMethodField()
-    predict_column = serializers.CharField(source="dataset_preprocessed.predict_column")
+    predict_column = serializers.CharField(source="dataset_preprocessed.predict_column", required=False)
 
     class Meta:
         model = DatasetRun
         fields = "__all__"
-        read_only_fields = ["id", "client"]
-
-    def get_dataset_name(self, obj):
-        return obj.dataset_preprocessed.dataset_upload.name
+        read_only_fields = ["id", "client", "predict_column", "status"]
 
     def get_number_of_results(self, obj):
         return obj.datasetrunresult_set.count()
@@ -43,4 +41,4 @@ class DatasetRunResultSerializer(serializers.ModelSerializer):
     class Meta:
         model = DatasetRunResult
         fields = "__all__"
-        # TODO Readonly all
+        read_only_fields = ["id", "client", "status", "dataset_run"]
