@@ -9,14 +9,19 @@ document.addEventListener("DOMContentLoaded", function() {
     fetchRunList();
 });
 
-function fetchRunList() {
-    const apiUrl = `/backend/dataset_run/`;
 
+function fetchRunList() {
+    const dataset_preprocessed_id = '{{ dataset_preprocessed_id }}';
+    let apiUrl = `/backend/dataset_run/`;
+    if (dataset_preprocessed_id) {
+        apiUrl += `?dataset_preprocessed_id=${dataset_preprocessed_id}`;
+    }
     fetch(apiUrl)
         .then(response => response.json())
         .then(data => populateRunList(data.results))
         .catch(error => console.error('Error fetching run list:', error));
 }
+
 
 function populateRunList(runs) {
     const listContainer = document.getElementById('runList');
@@ -33,6 +38,8 @@ function populateRunList(runs) {
                 Dataset Run ${run.id}
             </div>
             <div class="card-body">
+                <p class="card-text">Dataset name: <a href="/fe/dataset/${run.dataset_id}">${run.dataset_name}</a></p> 
+                <p class="card-text">Version: ${run.version}</p>
                 <p class="card-text">Description: ${run.description}</p>
                 <p class="card-text">Version: ${run.version}</p>
                 <p class="card-text">Models: ${run.models.join(', ')}</p>
@@ -41,6 +48,7 @@ function populateRunList(runs) {
                 <p class="card-text">Status: ${run.status}</p>
                 <a href="${viewUrl}" class="btn btn-primary">View Details</a>
                 <a href="${editUrl}" class="btn btn-secondary">Edit</a>
+                <a href="/fe/dataset_preprocess/${run.dataset_preprocessed_id}" class="btn btn-secondary"> View Preprocessed </a> 
             </div>
         `;
         listContainer.appendChild(itemDiv);

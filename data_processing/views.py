@@ -29,6 +29,8 @@ class DatasetPreprocessedViewSet(viewsets.ModelViewSet):
 class DatasetRunViewSet(viewsets.ModelViewSet):
     queryset = DatasetRun.objects.all()
     serializer_class = DatasetRunSerializer
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_fields = ("client_id", "dataset_preprocessed_id")
 
     def get_queryset(self):
         return DatasetRun.objects.filter(client_id=self.request.session.get("client_id"))

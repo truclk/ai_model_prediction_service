@@ -1,5 +1,6 @@
 from backend_api.models import DatasetUpload
 from backend_api.serializers import DatasetUploadSerializer
+from data_processing.models import DatasetPreprocessed
 from data_processing.models import DatasetRun
 from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
@@ -45,6 +46,14 @@ class PreprocessListView(View):
         return render(request, self.template_name, {"dataset": dataset, "metadata": metadata})
 
 
+class DatasetPreprocessView(View):
+    template_name = "dataset/preprocess_view.html"
+
+    def get(self, request, dataset_preprocessed_id):
+        get_object_or_404(DatasetPreprocessed, pk=dataset_preprocessed_id, client_id=request.session.get("client_id"))
+        return render(request, self.template_name, {"dataset_preprocessed_id": dataset_preprocessed_id})
+
+
 class PreprocessConfigView(View):
     template_name = "dataset/preprocess_form.html"
 
@@ -87,8 +96,10 @@ class DatasetRunListView(View):
     template_name = "dataset/run_list.html"
 
     def get(self, request):
+        dataset_preprocessed_id = request.GET.get("dataset_preprocessed_id", "")
         client_id = request.session.get("client_id")
-        return render(request, self.template_name, {"client_id": client_id})
+        context = {"dataset_preprocessed_id": dataset_preprocessed_id, "client_id": client_id}
+        return render(request, self.template_name, context)
 
 
 class DatasetRunResultListView(View):

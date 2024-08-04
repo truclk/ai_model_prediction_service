@@ -103,6 +103,7 @@ def preprocess_data(dataset_upload_id, config):
         client_id=dataset_upload.client.id,
         dataset_file=processed_file_path,
         dataset_upload=dataset_upload,
+        config=json.dumps(config),
         predict_column=config["predict_column"],
     )
     return dataset_preprocessed.id

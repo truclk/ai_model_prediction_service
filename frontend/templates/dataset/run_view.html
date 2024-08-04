@@ -18,7 +18,6 @@
             <p class="card-text">Predict Column: <span id="runPredictColumn"></span></p>
             <p class="card-text">Status: <span id="runStatus"></span></p>
             <p class="card-text">Number of results: <span id="numberOfResults"></span></p>
-            <a id="backToDataset" href="#" class="btn btn-primary">Back to dataset</a>
             <a href="/fe/dataset_run/{{dataset_run_id}}/edit/" class="btn btn-primary">Edit Run</a>
             <a href="/fe/dataset_run/{{dataset_run_id}}/results/" class="btn btn-primary">Review Results</a>
             <button class="btn btn-info" onclick="detectFeatures()">Detect Features</button>
@@ -26,6 +25,8 @@
             <button class="btn btn-danger" onclick="deleteRun()">Delete Run</button>
         </div>
     </div>
+    <a id="backToDataset" href="#" class="btn btn-primary">Dataset</a>
+    <a id="backToDatasetPreprocessed" href="#" class="btn btn-primary">Dataset preprocessed</a>
 </div>
 <script>
 document.addEventListener("DOMContentLoaded", function() {
@@ -54,6 +55,8 @@ function populateRunDetails(run) {
     document.getElementById('runPredictColumn').textContent = run.predict_column;
     document.getElementById('runStatus').textContent = run.status;
     document.getElementById('numberOfResults').textContent = run.number_of_results;
+    const backPreprocessedButton = document.getElementById('backToDatasetPreprocessed');
+    backPreprocessedButton.href = `/fe/dataset_preprocess/${run.dataset_preprocessed_id}/`;
     const backButton = document.getElementById('backToDataset');
     backButton.href = `/fe/dataset/${run.dataset_id}/`;
 

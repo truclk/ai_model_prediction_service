@@ -13,7 +13,6 @@ document.addEventListener("DOMContentLoaded", function() {
 function fetchPreprocessedData() {
     const datasetUploadId = {{ dataset.id }};
     const apiUrl = `/backend/preprocess/?client_id={{ client_id }}&dataset_upload_id=${datasetUploadId}`;
-
     fetch(apiUrl)
         .then(response => response.json())
         .then(data => populatePreprocessedList(data.results))
@@ -23,10 +22,17 @@ function fetchPreprocessedData() {
 function populatePreprocessedList(preprocessedList) {
     const listContainer = document.getElementById('preprocessedList');
     listContainer.innerHTML = '';
-
     preprocessedList.forEach(item => {
         const itemDiv = document.createElement('div');
         itemDiv.className = 'card mb-3';
+        let configJson;
+        try {
+            configJson = JSON.parse(item.config);
+        } catch (e) {
+            console.error('Error parsing config JSON:', e);
+            configJson = item.config; // Use the original string if parsing fails
+        }
+
         itemDiv.innerHTML = `
             <div class="card-header">
                 Preprocessed Dataset ${item.id}
@@ -39,7 +45,21 @@ function populatePreprocessedList(preprocessedList) {
                 <p class="card-text">Version: ${item.version}</p>
                 <p class="card-text">Description: ${item.description}</p>
                 <p class="card-text">Predict Column: ${item.predict_column}</p>
+                <p class="card-text">Run count: ${item.run_count}</p>
+                <p class="card-text">
+                    Config: 
+                    <button class="btn btn-link" type="button" data-bs-toggle="collapse" data-bs-target="#config${item.id}" aria-expanded="false" aria-controls="config${item.id}">
+                        Show/Hide
+                    </button>
+                </p>
+                <div class="collapse" id="config${item.id}">
+                    <div class="card card-body">
+                        <pre>${JSON.stringify(configJson, null, 2)}</pre>
+                    </div>
+                </div>
                 <a href="/fe/dataset_preprocess/${item.id}/create_run/" class="btn btn-primary">Create Dataset Run</a>
+                <a href="/fe/dataset_run/?dataset_preprocessed_id=${item.id}" class="btn btn-info">View Dataset Runs</a>
+                <a href="/fe/dataset_preprocess/${item.id}/" class="btn btn-primary">View</a>
                 <button class="btn btn-danger" onclick="deletePreprocessedDataset(${item.id})">Delete</button>
             </div>
         `;
@@ -50,7 +70,6 @@ function populatePreprocessedList(preprocessedList) {
 function deletePreprocessedDataset(id) {
     const deleteUrl = `/backend/preprocess/${id}/`;
     const csrftoken = getCookie('csrftoken');
-
     fetch(deleteUrl, {
         method: 'DELETE',
         headers: {

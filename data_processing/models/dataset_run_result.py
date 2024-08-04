@@ -19,6 +19,7 @@ class DatasetRunResult(TimeStampedModel):
             ("knn", "K-Nearest Neighbors"),
             ("lgbm", "LightGBM"),
             ("logistic_regression", "Logistic Regression"),
+            ("naive_bayes_multiclass", "Naive Bayes Multiclass"),
             # ("decision_tree", "Decision Tree"),
             # ("random_forest", "Random Forest"),
             # ("svm", "Support Vector Machine"),

@@ -18,4 +18,5 @@ class DatasetPreprocessed(TimeStampedModel):
     name = models.CharField(max_length=255)
     version = models.CharField(max_length=255)
     description = models.TextField()
+    config = models.JSONField(null=True, blank=True, default=dict)
     predict_column = models.CharField(max_length=255, default="")

@@ -28,6 +28,12 @@
 <script>
 document.addEventListener("DOMContentLoaded", function() {
     fetchMetadata();
+    const urlParams = new URLSearchParams(window.location.search);
+    const preprocessedId = urlParams.get('preprocessed_id');
+    if (preprocessedId) {
+        loadPreprocessConfig(preprocessedId);
+    }
+
     document.getElementById('submitPreprocessConfig').addEventListener('click', function(event) {
         event.preventDefault();
         submitPreprocessConfig();
@@ -249,5 +255,67 @@ function getCookie(name) {
 }
 
 const csrftoken = getCookie('csrftoken');
+
+
+
+function loadPreprocessConfig(preprocessedId) {
+    const url = `/backend/preprocess/${preprocessedId}/`;
+
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            populateFormWithConfig(data);
+        })
+        .catch(error => console.error('Error loading preprocess config:', error));
+}
+
+function populateFormWithConfig(config) {
+    document.getElementById('name').value = config.name;
+    document.getElementById('version').value = config.version;
+    document.getElementById('description').value = config.description;
+    document.getElementById('predictColumn').value = config.predict_column;
+
+    const columnsConfig = JSON.parse(config.config).columns;
+    
+    for (const [columnName, columnConfig] of Object.entries(columnsConfig)) {
+        const operations = columnConfig.operations;
+
+        if (operations.drop) {
+            document.getElementById(`drop_${columnName}`).checked = true;
+            document.getElementById(`operations_${columnName}`).classList.remove('show');
+        } else {
+            document.getElementById(`drop_${columnName}`).checked = false;
+            document.getElementById(`operations_${columnName}`).classList.add('show');
+
+            if (operations.missing_value_imputation) {
+                document.getElementById(`impute_${columnName}`).checked = true;
+                document.getElementById(`imputation_div_${columnName}`).style.display = 'block';
+                document.getElementById(`imputation_${columnName}`).value = operations.missing_value_imputation.strategy;
+                if (operations.missing_value_imputation.strategy === 'value') {
+                    document.getElementById(`imputation_value_${columnName}`).value = operations.missing_value_imputation.value;
+                    document.getElementById(`imputation_value_${columnName}`).style.display = 'block';
+                }
+            }
+
+            if (operations.standardization) {
+                document.getElementById(`standardization_${columnName}`).checked = true;
+            }
+
+            if (operations.normalization) {
+                document.getElementById(`normalization_${columnName}`).checked = true;
+            }
+
+            if (operations.encoding) {
+                document.getElementById(`encoding_${columnName}`).checked = true;
+            }
+
+            if (operations.one_hot_encoding) {
+                document.getElementById(`one_hot_encoding_${columnName}`).checked = true;
+            }
+        }
+    }
+}
+
+
 </script>
 {% endblock %}

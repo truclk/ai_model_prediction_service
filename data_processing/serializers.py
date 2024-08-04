@@ -6,15 +6,23 @@ from data_processing.models import DatasetRunResult
 
 
 class DatasetPreprocessedSerializer(serializers.ModelSerializer):
+    dataset_name = serializers.CharField(source="dataset_upload.name", read_only=True)
+    dataset_id = serializers.IntegerField(source="dataset_upload.id", read_only=True)
+    run_count = serializers.SerializerMethodField()
+
     class Meta:
         model = DatasetPreprocessed
         fields = "__all__"
         read_only_fields = ["id", "dataset_upload", "client", "dataset_file"]
 
+    def get_run_count(self, obj):
+        return obj.datasetrun_set.count()
+
 
 class DatasetRunSerializer(serializers.ModelSerializer):
     dataset_name = serializers.CharField(source="dataset_preprocessed.dataset_upload.name", read_only=True)
     dataset_id = serializers.IntegerField(source="dataset_preprocessed.dataset_upload.id", read_only=True)
+    dataset_preprocessed_id = serializers.IntegerField(source="dataset_preprocessed.id", read_only=True)
     number_of_results = serializers.SerializerMethodField()
     predict_column = serializers.CharField(source="dataset_preprocessed.predict_column", required=False)
 

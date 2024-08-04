@@ -74,8 +74,11 @@ def train_dataset_run(dataset_run_id):
         results, errors = trigger_dataset_run_result(dataset_run_result)
         dataset_run_result.results = results
         dataset_run_result.errors = errors
-        if "best_parameters" in results:
-            dataset_run_result.parameters = json.loads(results["best_parameters"])
+        if "best_parameters" in results and results["best_parameters"]:
+            try:
+                dataset_run_result.parameters = json.loads(results["best_parameters"])
+            except json.JSONDecodeError:
+                dataset_run_result.parameters = results["best_parameters"]
         dataset_run_result.status = "SUCCESS" if not errors else "FAILED"
         dataset_run_result.save()
     dataset_run.status = "SUCCESS"
