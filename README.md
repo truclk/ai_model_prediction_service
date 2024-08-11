@@ -32,7 +32,13 @@ make run_celery
 ```
 
 
-# Create admin
+# Create user
 ```
 python manage.py createsuperuser
 ```
+
+Login with created admin
+
+http://ai.evf.vn/admin/
+
+- Manually create clients, users and client users in the admin page
