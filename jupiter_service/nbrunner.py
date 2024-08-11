@@ -8,9 +8,6 @@ from pprint import pprint
 import requests
 from websocket import create_connection
 
-if "JUPYTER_TOKEN" not in os.environ:
-    raise Exception("JUPYTER_TOKEN environment variable must be set")
-
 
 def send_execute_request(code):
     msg_type = "execute_request"
