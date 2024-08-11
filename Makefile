@@ -1,3 +1,5 @@
+SHELL := /bin/bash
+
 VENV_ACTIVATE := source ./venv/bin/activate
 
 
@@ -22,7 +24,7 @@ run_server_prod:
 	$(VENV_ACTIVATE) && \
 	export JUPYTER_SERVER=127.0.0.1:8888 && \
 	export JUPYTER_TOKEN=$$(grep -oP 'c.IdentityProvider.token = "\K[^"]+' jupyter_notebook_config.py) && \
-	./manage.py runserver 0.0.0.0:80
+	sudo -E env "PATH=$$PATH" ./manage.py runserver 0.0.0.0:80
 
 run_celery:
 	$(VENV_ACTIVATE) && \
