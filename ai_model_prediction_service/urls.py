@@ -20,10 +20,7 @@ from django.urls import path
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-]
-
-# include rul from backend_api
-urlpatterns += [
     path("backend/", include("backend_api.urls")),
     path("fe/", include("frontend.urls")),
+    path("", RedirectView.as_view(url="/fe/", permanent=True)),
 ]
