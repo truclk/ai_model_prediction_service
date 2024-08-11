@@ -1,0 +1,370 @@
+openapi: 3.0.0
+info:
+  title: AI Model Prediction Service API
+  version: 1.0.0
+  description: API for managing datasets, preprocessing, model training, and results in the AI Model Prediction Service.
+
+servers:
+  - url: http://127.0.0.1:8000/backend
+
+paths:
+  /dataset/:
+    get:
+      summary: List Datasets
+      description: Retrieve a list of all datasets.
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: Page number for pagination
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DatasetList'
+    post:
+      summary: Upload Dataset
+      description: Upload a new dataset.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                dataset_file:
+                  type: string
+                  format: binary
+      responses:
+        '201':
+          description: Dataset created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Dataset'
+
+  /dataset/{id}/:
+    get:
+      summary: Get Dataset Details
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Dataset'
+
+  /dataset/{id}/trigger_analyse/:
+    post:
+      summary: Trigger Dataset Analysis
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Analysis started
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+
+  /dataset/{id}/trigger_preprocess/:
+    post:
+      summary: Trigger Preprocessing
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PreprocessConfig'
+      responses:
+        '200':
+          description: Preprocessing started
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  preprocessed_id:
+                    type: integer
+
+  /dataset_run/:
+    post:
+      summary: Create Dataset Run
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DatasetRunCreate'
+      responses:
+        '201':
+          description: Dataset run created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DatasetRun'
+
+  /dataset_run/{id}/:
+    get:
+      summary: Get Dataset Run Details
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DatasetRun'
+
+  /dataset_run/{id}/detect_features/:
+    post:
+      summary: Trigger Feature Selection
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Feature selection started
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+
+  /dataset_run/{id}/train/:
+    post:
+      summary: Start Training
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Training started
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+
+  /dataset_run_result/:
+    get:
+      summary: List Run Results
+      parameters:
+        - in: query
+          name: dataset_run_id
+          schema:
+            type: integer
+          description: ID of the dataset run
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DatasetRunResultList'
+
+  /dataset_run_result/{id}/clone/:
+    post:
+      summary: Clone Result
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                parameters:
+                  type: object
+      responses:
+        '201':
+          description: Result cloned successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DatasetRunResult'
+
+components:
+  schemas:
+    Dataset:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        created:
+          type: string
+          format: date-time
+        modified:
+          type: string
+          format: date-time
+        status:
+          type: string
+        dataset_file:
+          type: string
+        metadata:
+          type: object
+
+    DatasetList:
+      type: object
+      properties:
+        count:
+          type: integer
+        next:
+          type: string
+          nullable: true
+        previous:
+          type: string
+          nullable: true
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Dataset'
+
+    PreprocessConfig:
+      type: object
+      properties:
+        name:
+          type: string
+        version:
+          type: string
+        description:
+          type: string
+        columns:
+          type: object
+          additionalProperties:
+            type: object
+            properties:
+              operations:
+                type: object
+        predict_column:
+          type: string
+
+    DatasetRunCreate:
+      type: object
+      properties:
+        dataset_preprocessed:
+          type: integer
+        description:
+          type: string
+        version:
+          type: string
+        models:
+          type: array
+          items:
+            type: string
+        feature_selection_method:
+          type: string
+        n_features_to_select:
+          type: integer
+
+    DatasetRun:
+      type: object
+      properties:
+        id:
+          type: integer
+        status:
+          type: string
+        created:
+          type: string
+          format: date-time
+        models:
+          type: array
+          items:
+            type: string
+        feature_selection_method:
+          type: string
+        n_features_to_select:
+          type: integer
+        features:
+          type: object
+
+    DatasetRunResult:
+      type: object
+      properties:
+        id:
+          type: integer
+        dataset_run:
+          type: integer
+        model:
+          type: string
+        accuracy_score:
+          type: number
+        roc_auc_score:
+          type: number
+        f1_score:
+          type: number
+
+    DatasetRunResultList:
+      type: object
+      properties:
+        count:
+          type: integer
+        next:
+          type: string
+          nullable: true
+        previous:
+          type: string
+          nullable: true
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/DatasetRunResult'
+
+security:
+  - BearerAuth: []
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
