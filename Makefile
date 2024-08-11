@@ -1,4 +1,4 @@
-VENV_ACTIVATE := source $(VENV_PATH)/bin/activate
+VENV_ACTIVATE := source ./venv/bin/activate
 
 
 .PHONY: run_notebook run_server run_celery
