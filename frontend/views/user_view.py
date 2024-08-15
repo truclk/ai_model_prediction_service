@@ -1,3 +1,4 @@
+from backend_api.models import Client
 from django.contrib.auth import authenticate
 from django.contrib.auth import login
 from django.contrib.auth import logout
@@ -6,7 +7,8 @@ from django.shortcuts import render
 
 
 def account(request):
-    context = {"client_id": request.session.get("client_id"), "client_name": request.session.get("client_name")}
+    client = Client.objects.get(id=request.session.get("client_id"))
+    context = {"client_id": request.session.get("client_id"), "client_name": client.name}
 
     return render(request, "user/account.html", context)
 
