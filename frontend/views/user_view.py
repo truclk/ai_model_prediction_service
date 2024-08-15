@@ -6,7 +6,7 @@ from django.shortcuts import render
 
 
 def account(request):
-    context = {"client_id": request.session.get("client_id")}
+    context = {"client_id": request.session.get("client_id"), "client_name": request.session.get("client_name")}
 
     return render(request, "user/account.html", context)
 
